@@ -17,7 +17,7 @@ const BookingPage: React.FC = () => {
             <div className="container mx-auto py-8">
                 <div className="grid grid-cols-2 000 gap-6">
                     <BookingForm />
-                    <OrderSummary bookingDetails="BookingDetails" />
+                    <OrderSummary bookingDetails={bookingDetails} />
 
                 </div>
             </div>

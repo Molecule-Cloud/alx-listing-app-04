@@ -75,7 +75,6 @@ const BookingForm = () => (
         Confirm & Pay
       </button>
     </form>
-    <CancellationPolicy/>
   </div>
 );
 

@@ -1,14 +1,43 @@
 // pages/index.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { HERO_BANNER, FILTERS, PROPERTYLISTINGSAMPLE } from "@/constants";
 import { Pill } from '@/components/common/Pill';
 import PropertyCard from '@/components/common/PropertyCard';
 import Image from 'next/image';
+import { PropertyProps } from '@/interfaces';
 
 const Home: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [properties, setProperties] = useState<PropertyProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // API Integration: Fetch properties when component mounts
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // API call to fetch properties
+        const response = await axios.get('/api/properties');
+        setProperties(response.data);
+        
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+        setError('Failed to load properties. Please try again later.');
+        // Fallback to static data if API fails
+        setProperties(PROPERTYLISTINGSAMPLE);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []); // Empty dependency array means this runs once when component mounts
 
   const toggleFilter = (filter: string) => {
     setActiveFilters(prev => 
@@ -18,9 +47,10 @@ const Home: React.FC = () => {
     );
   };
 
+  // Filter the API-fetched properties instead of static data
   const filteredProperties = activeFilters.length === 0 
-    ? PROPERTYLISTINGSAMPLE 
-    : PROPERTYLISTINGSAMPLE.filter(property => 
+    ? properties 
+    : properties.filter(property => 
         activeFilters.some(filter => 
           property.category.some(cat => 
             cat.toLowerCase().includes(filter.toLowerCase())
@@ -94,33 +124,63 @@ const Home: React.FC = () => {
       {/* Listing Section */}
       <section className="">
         <div className=" mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            </h2>
-            <p className="text-gray-600">
-              {activeFilters.length > 0 
-                ? `Showing ${filteredProperties.length} properties matching your filters`
-                : `Explore our collection of ${PROPERTYLISTINGSAMPLE.length} amazing properties`
-              }
-            </p>
-          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProperties.map((property, index) => (
-              <PropertyCard key={index} property={property} />
-            ))}
-          </div>
-
-          {filteredProperties.length === 0 && (
+          {/* Loading State */}
+          {loading && (
             <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8v-2a1 1 0 011-1h1a1 1 0 011 1v2" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No properties found</h3>
-              <p className="text-gray-500">Try adjusting your filters to see more results.</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#34967C]"></div>
+              <p className="mt-4 text-gray-600">Loading amazing properties...</p>
             </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-12">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                <p className="text-red-600 font-medium">⚠️ {error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Properties Display - Only show when not loading */}
+          {!loading && (
+            <>
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  Properties for You
+                </h2>
+                <p className="text-gray-600">
+                  {activeFilters.length > 0 
+                    ? `Showing ${filteredProperties.length} properties matching your filters`
+                    : `Explore our collection of ${properties.length} amazing properties`
+                  }
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProperties.map((property, index) => (
+                  <PropertyCard key={property.id || index} property={property} />
+                ))}
+              </div>
+              
+              {filteredProperties.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8v-2a1 1 0 011-1h1a1 1 0 011 1v2" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No properties found</h3>
+                  <p className="text-gray-500">Try adjusting your filters to see more results.</p>
+                </div>
+              )}
+            </>
           )}
           
         </div>

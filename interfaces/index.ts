@@ -1,5 +1,5 @@
 export interface PropertyProps {
-  id: string,
+  id: number;
   name: string;
   address: {
     state: string;
@@ -15,5 +15,11 @@ export interface PropertyProps {
     occupants: string;
   };
   image: string;
+  description?: string;
   discount: string;
+}
+
+
+export interface PropertyReviews {
+  propertyId: number | string
 }

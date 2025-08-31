@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { PropertyProps } from '@/interfaces';
 
 const PropertyCard: React.FC<{ property: PropertyProps }> = ({ property }) => {
@@ -129,9 +130,11 @@ const PropertyCard: React.FC<{ property: PropertyProps }> = ({ property }) => {
             {formatPrice(property.price)}
             <span className="text-sm font-normal text-gray-600"> /night</span>
           </div>
-          <button className="text-sm font-medium text-[#34967C] hover:text-[#2a7a63]">
-            View Details
-          </button>
+          <Link href={`/property/${property.id}`}>
+            <button className="text-sm font-medium text-[#34967C] hover:text-[#2a7a63]">
+              View Details
+            </button>
+          </Link>
         </div>
       </div>
     </div>

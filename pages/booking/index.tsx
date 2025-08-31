@@ -1,7 +1,7 @@
 
 import OrderSummary from "@/components/booking/OrderSummary";
-import BookingForm from "@/components/booking/BookingForm";
-
+import BookingForm from "@/components/booking/index"; // Updated to use API-integrated form
+import CancellationPolicy from "@/components/booking/CancellationPolicy";
 
 const BookingPage: React.FC = () => {
 
@@ -15,10 +15,12 @@ const BookingPage: React.FC = () => {
     return (
         <>
             <div className="container mx-auto py-8">
-                <div className="grid grid-cols-2 000 gap-6">
-                    <BookingForm />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <BookingForm />
+                        <CancellationPolicy />
+                    </div>
                     <OrderSummary bookingDetails={bookingDetails} />
-
                 </div>
             </div>
         </>
